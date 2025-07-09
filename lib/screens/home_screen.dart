@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../constants/app_constants.dart';
 import '../widgets/background_container.dart';
 import '../widgets/animated_welcome_card.dart';
 import '../controllers/login_controller.dart';
+import '../utils/auth_debug.dart';
+import '../utils/dev_auth_helper.dart';
 
 class HomeScreen extends StatelessWidget {
   final String userEmail;
@@ -15,20 +18,21 @@ class HomeScreen extends StatelessWidget {
       body: BackgroundContainer(
         backgroundImagePath: 'assets/images/building_estate.jpg',
         child: SafeArea(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(AppConstants.defaultPadding),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildHeader(context),
-                const SizedBox(height: 40),
+                const SizedBox(height: 30),
                 _buildWelcomeMessage(),
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
                 _buildQuickActions(),
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
                 _buildRecentActivity(),
-                const Spacer(),
+                const SizedBox(height: 20),
                 _buildLogoutButton(context),
+                const SizedBox(height: 20),
               ],
             ),
           ),
@@ -38,37 +42,85 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Column(
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Welcome Back!',
-              style: AppConstants.titleTextStyle.copyWith(fontSize: 28),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Welcome Back!',
+                    style: AppConstants.titleTextStyle.copyWith(fontSize: 28),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    userEmail,
+                    style: AppConstants.bodyTextStyle.copyWith(fontSize: 16),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              userEmail,
-              style: AppConstants.bodyTextStyle.copyWith(fontSize: 14),
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppConstants.primaryColor,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Icon(
+                Icons.person,
+                color: AppConstants.whiteColor,
+                size: 20,
+              ),
             ),
           ],
         ),
-        Container(
-          width: 50,
-          height: 50,
-          decoration: BoxDecoration(
-            color: AppConstants.primaryColor,
-            borderRadius: BorderRadius.circular(25),
-            boxShadow: AppConstants.defaultBoxShadow,
+        // Debug buttons row (only in debug mode)
+        if (kDebugMode) ...[
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              // Debug button for development
+              IconButton(
+                onPressed: () {
+                  AuthDebug.printAuthState();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Auth state printed to console'),
+                      duration: Duration(seconds: 1),
+                    ),
+                  );
+                },
+                icon: const Icon(
+                  Icons.bug_report,
+                  color: AppConstants.primaryColor,
+                  size: 20,
+                ),
+              ),
+              // Dev sign out button for testing
+              IconButton(
+                onPressed: () async {
+                  await DevAuthHelper.manualDevSignOut();
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Dev sign out - will return to login'),
+                        duration: Duration(seconds: 2),
+                        backgroundColor: Colors.orange,
+                      ),
+                    );
+                  }
+                },
+                icon: const Icon(Icons.logout, color: Colors.orange, size: 20),
+              ),
+            ],
           ),
-          child: const Icon(
-            Icons.person,
-            color: AppConstants.whiteColor,
-            size: 24,
-          ),
-        ),
+        ],
       ],
     );
   }

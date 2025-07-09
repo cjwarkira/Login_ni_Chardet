@@ -41,46 +41,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'YOUR_WEB_API_KEY',
-    appId: 'YOUR_WEB_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    authDomain: 'YOUR_PROJECT_ID.firebaseapp.com',
-    storageBucket: 'YOUR_PROJECT_ID.appspot.com',
+    apiKey: 'AIzaSyDaaBGsAWU5j8pjT1BD4dtn5_iAEQ1jxmc',
+    appId: '1:204871241196:web:d1faecac830742d006c4c9',
+    messagingSenderId: '204871241196',
+    projectId: 'fir-auth-app-c8ec4',
+    authDomain: 'fir-auth-app-c8ec4.firebaseapp.com',
+    storageBucket: 'fir-auth-app-c8ec4.firebasestorage.app',
+    measurementId: 'G-CKR2VPJ51L',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'YOUR_ANDROID_API_KEY',
-    appId: 'YOUR_ANDROID_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_PROJECT_ID.appspot.com',
+    apiKey: 'AIzaSyDLxwszReF-u0s0N2ZVeA1J1omJJmSXOog',
+    appId: '1:204871241196:android:149231c09cc8be9106c4c9',
+    messagingSenderId: '204871241196',
+    projectId: 'fir-auth-app-c8ec4',
+    storageBucket: 'fir-auth-app-c8ec4.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'YOUR_IOS_API_KEY',
-    appId: 'YOUR_IOS_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_PROJECT_ID.appspot.com',
+    apiKey: 'AIzaSyDrwRMkOwNfdntS8vNDsF1k8I5NcCI3afs',
+    appId: '1:204871241196:ios:d05a1dcf02aa2dad06c4c9',
+    messagingSenderId: '204871241196',
+    projectId: 'fir-auth-app-c8ec4',
+    storageBucket: 'fir-auth-app-c8ec4.firebasestorage.app',
     iosBundleId: 'com.example.loginNiChardet',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'YOUR_MACOS_API_KEY',
-    appId: 'YOUR_MACOS_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_PROJECT_ID.appspot.com',
+    apiKey: 'AIzaSyDrwRMkOwNfdntS8vNDsF1k8I5NcCI3afs',
+    appId: '1:204871241196:ios:d05a1dcf02aa2dad06c4c9',
+    messagingSenderId: '204871241196',
+    projectId: 'fir-auth-app-c8ec4',
+    storageBucket: 'fir-auth-app-c8ec4.firebasestorage.app',
     iosBundleId: 'com.example.loginNiChardet',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'YOUR_WINDOWS_API_KEY',
-    appId: 'YOUR_WINDOWS_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    authDomain: 'YOUR_PROJECT_ID.firebaseapp.com',
-    storageBucket: 'YOUR_PROJECT_ID.appspot.com',
+    apiKey: 'AIzaSyDaaBGsAWU5j8pjT1BD4dtn5_iAEQ1jxmc',
+    appId: '1:204871241196:web:47808b6f6be9696c06c4c9',
+    messagingSenderId: '204871241196',
+    projectId: 'fir-auth-app-c8ec4',
+    authDomain: 'fir-auth-app-c8ec4.firebaseapp.com',
+    storageBucket: 'fir-auth-app-c8ec4.firebasestorage.app',
+    measurementId: 'G-SXB3YNE8D9',
   );
+
 }

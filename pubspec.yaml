@@ -44,6 +44,9 @@ dependencies:
   google_sign_in: ^6.2.1
   sign_in_with_apple: ^6.1.2
   
+  # Crypto package for Apple Sign In
+  crypto: ^3.0.3
+  
   # State management and other utilities
   shared_preferences: ^2.3.2
 

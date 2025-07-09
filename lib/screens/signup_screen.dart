@@ -1,41 +1,55 @@
 import 'package:flutter/material.dart';
 import '../widgets/background_container.dart';
 import '../widgets/custom_text_field.dart';
-import '../widgets/custom_toggle_switch.dart';
 import '../widgets/social_login_section.dart';
 import '../constants/app_constants.dart';
 import '../controllers/login_controller.dart';
 import '../utils/validators.dart';
-import 'signup_screen.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _SignupScreenState extends State<SignupScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   final _loginController = LoginController();
-  bool _rememberMe = false;
+  bool _acceptTerms = false;
   bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
   bool _isLoading = false;
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  void _handleLogin() async {
+  void _handleSignup() async {
     // Ensure the form validation doesn't cause UI issues
     FocusScope.of(context).unfocus();
 
     // Check for empty fields and show user-friendly messages
+    if (_nameController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter your full name'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
     if (_emailController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -58,6 +72,39 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
+    if (_confirmPasswordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please confirm your password'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    if (_passwordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Passwords do not match'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    if (!_acceptTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please accept the terms and conditions'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
     // Additional validation
     if (_formKey.currentState?.validate() ?? false) {
       setState(() {
@@ -65,17 +112,16 @@ class _LoginScreenState extends State<LoginScreen> {
       });
 
       try {
+        final name = _nameController.text.trim();
         final email = _emailController.text.trim();
         final password = _passwordController.text;
 
-        final success = await _loginController.login(
-          email,
-          password,
-          rememberMe: _rememberMe,
-        );
+        final success = await _loginController.register(email, password, name);
 
         if (success && mounted) {
-          // AuthWrapper will handle navigation automatically
+          // Sign out the user immediately after registration
+          await _loginController.logout();
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Row(
@@ -84,7 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(width: 12),
                   const Expanded(
                     child: Text(
-                      'Welcome back! Login successful!',
+                      'User Account Registered',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -102,12 +148,19 @@ class _LoginScreenState extends State<LoginScreen> {
               margin: const EdgeInsets.all(16),
             ),
           );
+
+          // Navigate back to login screen after a brief delay
+          Future.delayed(const Duration(seconds: 1), () {
+            if (mounted) {
+              Navigator.of(context).pushReplacementNamed('/login');
+            }
+          });
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Login failed: ${e.toString()}'),
+              content: Text('Sign up failed: ${e.toString()}'),
               backgroundColor: Colors.red,
             ),
           );
@@ -122,62 +175,17 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _handleForgotPassword() async {
-    final email = _emailController.text;
-    if (email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your email first')),
-      );
-      return;
-    }
-
+  void _handleGoogleSignup() async {
     try {
-      await _loginController.forgotPassword(email);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.email, color: Colors.white),
-                const SizedBox(width: 12),
-                const Expanded(
-                  child: Text(
-                    'Password reset email sent! Check your inbox.',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: Colors.blue,
-            duration: const Duration(seconds: 4),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            margin: const EdgeInsets.all(16),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
-      }
-    }
-  }
+      setState(() {
+        _isLoading = true;
+      });
 
-  void _handleSignup() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const SignupScreen()),
-    );
-  }
-
-  void _handleGoogleLogin() async {
-    try {
       final success = await _loginController.loginWithGoogle();
       if (mounted && success) {
+        // Sign out the user immediately after registration
+        await _loginController.logout();
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
@@ -186,7 +194,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(width: 12),
                 const Expanded(
                   child: Text(
-                    'Google login successful! Welcome!',
+                    'Google Account Registered Successfully',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                   ),
                 ),
@@ -201,20 +209,57 @@ class _LoginScreenState extends State<LoginScreen> {
             margin: const EdgeInsets.all(16),
           ),
         );
+
+        // Navigate back to login screen after a brief delay
+        Future.delayed(const Duration(seconds: 1), () {
+          if (mounted) {
+            Navigator.of(context).pushReplacementNamed('/login');
+          }
+        });
       }
     } catch (e) {
       if (mounted) {
+        String errorMessage = e.toString();
+
+        // Handle specific error cases
+        if (errorMessage.contains('cancelled')) {
+          errorMessage = 'Google Sign-In was cancelled';
+        } else if (errorMessage.contains('network')) {
+          errorMessage = 'Network error. Please check your connection.';
+        } else if (errorMessage.contains('not available')) {
+          errorMessage = 'Google Sign-In is not available on this device';
+        } else {
+          errorMessage = 'Google sign up failed. Please try again.';
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Google login failed: ${e.toString()}')),
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
         );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
   }
 
-  void _handleAppleLogin() async {
+  void _handleAppleSignup() async {
     try {
+      setState(() {
+        _isLoading = true;
+      });
+
       final success = await _loginController.loginWithApple();
       if (mounted && success) {
+        // Sign out the user immediately after registration
+        await _loginController.logout();
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
@@ -223,7 +268,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(width: 12),
                 const Expanded(
                   child: Text(
-                    'Apple login successful! Welcome!',
+                    'User Account Registered',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                   ),
                 ),
@@ -238,23 +283,40 @@ class _LoginScreenState extends State<LoginScreen> {
             margin: const EdgeInsets.all(16),
           ),
         );
+
+        // Navigate back to login screen after a brief delay
+        Future.delayed(const Duration(seconds: 1), () {
+          if (mounted) {
+            Navigator.of(context).pushReplacementNamed('/login');
+          }
+        });
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Apple login failed: ${e.toString()}')),
+          SnackBar(content: Text('Apple sign up failed: ${e.toString()}')),
         );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
   }
 
-  void _handleFacebookLogin() async {
+  void _handleFacebookSignup() async {
     try {
+      setState(() {
+        _isLoading = true;
+      });
+
       final success = await _loginController.loginWithFacebook();
       if (mounted && success) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Facebook login successful!'),
+            content: Text('Facebook sign up successful!'),
             backgroundColor: Colors.green,
           ),
         );
@@ -262,10 +324,20 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Facebook login failed: ${e.toString()}')),
+          SnackBar(content: Text('Facebook sign up failed: ${e.toString()}')),
         );
       }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
+  }
+
+  void _handleLogin() {
+    Navigator.of(context).pop(); // Go back to login screen
   }
 
   @override
@@ -287,20 +359,25 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 60),
+                  const SizedBox(height: 20),
                   _buildTitle(),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 24),
+                  _buildNameField(),
+                  const SizedBox(height: AppConstants.elementSpacing),
                   _buildEmailField(),
                   const SizedBox(height: AppConstants.elementSpacing),
                   _buildPasswordField(),
-                  _buildRememberMeAndForgotPassword(),
-                  const SizedBox(height: 25),
-                  _buildLoginButton(),
+                  const SizedBox(height: AppConstants.elementSpacing),
+                  _buildConfirmPasswordField(),
+                  const SizedBox(height: AppConstants.elementSpacing),
+                  _buildTermsAndConditions(),
+                  const SizedBox(height: 20),
+                  _buildSignupButton(),
                   const SizedBox(height: AppConstants.sectionSpacing),
                   _buildSocialLoginSection(),
                   const SizedBox(height: AppConstants.sectionSpacing),
-                  _buildSignupSection(),
-                  const SizedBox(height: 60),
+                  _buildLoginSection(),
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
@@ -311,7 +388,25 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildTitle() {
-    return const Text('Login', style: AppConstants.titleTextStyle);
+    return const Text('Create Account', style: AppConstants.titleTextStyle);
+  }
+
+  Widget _buildNameField() {
+    return CustomTextField(
+      label: 'Full Name',
+      hintText: 'Enter your full name',
+      controller: _nameController,
+      keyboardType: TextInputType.name,
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) {
+          return 'Please enter your full name';
+        }
+        if (value.trim().length < 2) {
+          return 'Name must be at least 2 characters';
+        }
+        return null;
+      },
+    );
   }
 
   Widget _buildEmailField() {
@@ -345,40 +440,77 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildRememberMeAndForgotPassword() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 15),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          CustomToggleSwitch(
-            value: _rememberMe,
-            onTap: () {
-              setState(() {
-                _rememberMe = !_rememberMe;
-              });
-            },
-            label: 'Remember me',
-          ),
-          GestureDetector(
-            onTap: _handleForgotPassword,
-            child: Text(
-              'Forgot password?',
-              style: TextStyle(
-                fontFamily: 'Lato',
-                fontSize: 14,
-                color: AppConstants.hintTextColor,
-                decoration: TextDecoration.underline,
-                decorationColor: AppConstants.hintTextColor,
-              ),
-            ),
-          ),
-        ],
+  Widget _buildConfirmPasswordField() {
+    return CustomTextField(
+      label: 'Confirm Password',
+      hintText: 'Confirm Password',
+      controller: _confirmPasswordController,
+      obscureText: _obscureConfirmPassword,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please confirm your password';
+        }
+        if (value != _passwordController.text) {
+          return 'Passwords do not match';
+        }
+        return null;
+      },
+      suffixIcon: IconButton(
+        onPressed: () {
+          setState(() {
+            _obscureConfirmPassword = !_obscureConfirmPassword;
+          });
+        },
+        icon: Icon(
+          _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+          color: AppConstants.hintTextColor,
+        ),
       ),
     );
   }
 
-  Widget _buildLoginButton() {
+  Widget _buildTermsAndConditions() {
+    return Row(
+      children: [
+        Checkbox(
+          value: _acceptTerms,
+          onChanged: (value) {
+            setState(() {
+              _acceptTerms = value ?? false;
+            });
+          },
+          activeColor: AppConstants.primaryColor,
+        ),
+        Expanded(
+          child: RichText(
+            text: TextSpan(
+              style: AppConstants.bodyTextStyle,
+              children: [
+                const TextSpan(text: 'I agree to the '),
+                TextSpan(
+                  text: 'Terms of Service',
+                  style: AppConstants.linkTextStyle.copyWith(
+                    color: AppConstants.linkColor,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+                const TextSpan(text: ' and '),
+                TextSpan(
+                  text: 'Privacy Policy',
+                  style: AppConstants.linkTextStyle.copyWith(
+                    color: AppConstants.linkColor,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSignupButton() {
     return Container(
       width: double.infinity,
       height: AppConstants.buttonHeight,
@@ -388,7 +520,7 @@ class _LoginScreenState extends State<LoginScreen> {
         boxShadow: AppConstants.defaultBoxShadow,
       ),
       child: ElevatedButton(
-        onPressed: _isLoading ? null : _handleLogin,
+        onPressed: _isLoading ? null : _handleSignup,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
@@ -406,31 +538,32 @@ class _LoginScreenState extends State<LoginScreen> {
                     strokeWidth: 2,
                   ),
                 )
-                : Text('Login', style: AppConstants.buttonTextStyle),
+                : Text('Create Account', style: AppConstants.buttonTextStyle),
       ),
     );
   }
 
   Widget _buildSocialLoginSection() {
     return SocialLoginSection(
-      onGooglePressed: _handleGoogleLogin,
-      onApplePressed: _handleAppleLogin,
-      onFacebookPressed: _handleFacebookLogin,
+      dividerText: 'Or sign up with',
+      onGooglePressed: _handleGoogleSignup,
+      onApplePressed: _handleAppleSignup,
+      onFacebookPressed: _handleFacebookSignup,
     );
   }
 
-  Widget _buildSignupSection() {
+  Widget _buildLoginSection() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const Text(
-          "Don't have an account? ",
+          "Already have an account? ",
           style: AppConstants.bodyTextStyle,
         ),
         GestureDetector(
-          onTap: _handleSignup,
+          onTap: _handleLogin,
           child: Text(
-            'Signup',
+            'Login',
             style: AppConstants.linkTextStyle.copyWith(
               color: AppConstants.linkColor,
             ),
