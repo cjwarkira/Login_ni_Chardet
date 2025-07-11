@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'firebase_options.dart';
 import 'screens/login_screen.dart';
-import 'screens/bloc_login_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/home_screen.dart';
 import 'widgets/auth_wrapper.dart';
@@ -39,18 +38,15 @@ class MyApp extends StatelessWidget {
       providers: [
         // Auth Bloc - Global authentication state
         BlocProvider<AuthBloc>(
-          create: (context) => AuthBloc(
-            authRepository: FirebaseAuthRepository(),
-          )..add(AuthCheckRequested()),
+          create:
+              (context) =>
+                  AuthBloc(authRepository: FirebaseAuthRepository())
+                    ..add(AuthCheckRequested()),
         ),
         // Login Form Cubit - Can be provided globally or locally
-        BlocProvider<LoginFormCubit>(
-          create: (context) => LoginFormCubit(),
-        ),
+        BlocProvider<LoginFormCubit>(create: (context) => LoginFormCubit()),
         // Signup Form Cubit - Can be provided globally or locally
-        BlocProvider<SignupFormCubit>(
-          create: (context) => SignupFormCubit(),
-        ),
+        BlocProvider<SignupFormCubit>(create: (context) => SignupFormCubit()),
       ],
       child: MaterialApp(
         title: 'Real Estate Login',

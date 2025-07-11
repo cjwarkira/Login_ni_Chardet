@@ -11,25 +11,29 @@ class LoginFormCubit extends Cubit<LoginFormState> {
   void emailChanged(String email) {
     final isValid = AppValidators.isValidEmail(email);
     final error = _getEmailError(email);
-    
-    emit(state.copyWith(
-      email: email,
-      isEmailValid: isValid,
-      emailError: error,
-      isFormValid: isValid && state.isPasswordValid,
-    ));
+
+    emit(
+      state.copyWith(
+        email: email,
+        isEmailValid: isValid,
+        emailError: error,
+        isFormValid: isValid && state.isPasswordValid,
+      ),
+    );
   }
 
   void passwordChanged(String password) {
     final isValid = AppValidators.isValidPassword(password);
     final error = _getPasswordError(password);
-    
-    emit(state.copyWith(
-      password: password,
-      isPasswordValid: isValid,
-      passwordError: error,
-      isFormValid: state.isEmailValid && isValid,
-    ));
+
+    emit(
+      state.copyWith(
+        password: password,
+        isPasswordValid: isValid,
+        passwordError: error,
+        isFormValid: state.isEmailValid && isValid,
+      ),
+    );
   }
 
   void togglePasswordVisibility() {
@@ -49,11 +53,13 @@ class LoginFormCubit extends Cubit<LoginFormState> {
     if (rememberMe) {
       final savedEmail = await UserPreferences.getSavedEmail();
       if (savedEmail != null && savedEmail.isNotEmpty) {
-        emit(state.copyWith(
-          email: savedEmail,
-          isEmailValid: AppValidators.isValidEmail(savedEmail),
-          rememberMe: true,
-        ));
+        emit(
+          state.copyWith(
+            email: savedEmail,
+            isEmailValid: AppValidators.isValidEmail(savedEmail),
+            rememberMe: true,
+          ),
+        );
       }
     }
   }

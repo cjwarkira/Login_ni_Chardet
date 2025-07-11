@@ -10,9 +10,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   late StreamSubscription<User?> _authStreamSubscription;
 
   AuthBloc({AuthRepository? authRepository})
-      : _authRepository = authRepository ?? FirebaseAuthRepository(),
-        super(AuthInitial()) {
-    
+    : _authRepository = authRepository ?? FirebaseAuthRepository(),
+      super(AuthInitial()) {
     // Listen to authentication state changes
     _authStreamSubscription = _authRepository.authStateChanges.listen(
       (user) => add(AuthUserChanged(user: user)),
@@ -42,7 +41,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(AuthLoading());
-    
+
     final user = _authRepository.currentUser;
     if (user != null) {
       emit(AuthAuthenticated(user: user));
@@ -82,11 +81,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthSigningUp());
 
     try {
-      final userCredential = await _authRepository.createUserWithEmailAndPassword(
-        event.email,
-        event.password,
-        event.displayName,
-      );
+      final userCredential = await _authRepository
+          .createUserWithEmailAndPassword(
+            event.email,
+            event.password,
+            event.displayName,
+          );
 
       if (userCredential?.user != null) {
         emit(AuthAuthenticated(user: userCredential!.user!));
@@ -190,10 +190,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   // Handle auth state changes from Firebase
-  void _onAuthUserChanged(
-    AuthUserChanged event,
-    Emitter<AuthState> emit,
-  ) {
+  void _onAuthUserChanged(AuthUserChanged event, Emitter<AuthState> emit) {
     if (event.user != null) {
       emit(AuthAuthenticated(user: event.user));
     } else {

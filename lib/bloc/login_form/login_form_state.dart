@@ -49,14 +49,14 @@ class LoginFormState extends Equatable {
 
   @override
   List<Object?> get props => [
-        email,
-        password,
-        isEmailValid,
-        isPasswordValid,
-        isFormValid,
-        obscurePassword,
-        rememberMe,
-        emailError,
-        passwordError,
-      ];
+    email,
+    password,
+    isEmailValid,
+    isPasswordValid,
+    isFormValid,
+    obscurePassword,
+    rememberMe,
+    emailError,
+    passwordError,
+  ];
 }

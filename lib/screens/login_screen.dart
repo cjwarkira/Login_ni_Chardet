@@ -31,29 +31,56 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  // Reusable toast message method
+  void _showToastMessage({
+    required String message,
+    required BuildContext context,
+    Color? color,
+    Widget? icon,
+    Duration? duration,
+  }) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            if (icon != null) ...[icon, const SizedBox(width: 12)],
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: color ?? Colors.red,
+        duration: duration ?? const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(16),
+      ),
+    );
+  }
+
   void _handleLogin() async {
     // Ensure the form validation doesn't cause UI issues
     FocusScope.of(context).unfocus();
 
     // Check for empty fields and show user-friendly messages
     if (_emailController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter your email address'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 2),
-        ),
+      _showToastMessage(
+        message: 'Please enter your email address',
+        context: context,
       );
       return;
     }
 
     if (_passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter your password'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 2),
-        ),
+      _showToastMessage(
+        message: 'Please enter your password',
+        context: context,
       );
       return;
     }
@@ -76,40 +103,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
         if (success && mounted) {
           // AuthWrapper will handle navigation automatically
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  const Icon(Icons.check_circle, color: Colors.white),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Text(
-                      'Welcome back! Login successful!',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              backgroundColor: Colors.green,
-              duration: const Duration(seconds: 3),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              margin: const EdgeInsets.all(16),
-            ),
+          _showToastMessage(
+            message: 'Welcome back! Login successful!',
+            context: context,
+            color: Colors.green,
+            icon: const Icon(Icons.check_circle, color: Colors.white),
+            duration: const Duration(seconds: 3),
           );
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Login failed: ${e.toString()}'),
-              backgroundColor: Colors.red,
-            ),
+          _showToastMessage(
+            message: 'Login failed: ${e.toString()}',
+            context: context,
           );
         }
       } finally {
@@ -125,8 +131,9 @@ class _LoginScreenState extends State<LoginScreen> {
   void _handleForgotPassword() async {
     final email = _emailController.text;
     if (email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your email first')),
+      _showToastMessage(
+        message: 'Please enter your email first',
+        context: context,
       );
       return;
     }
@@ -134,35 +141,17 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await _loginController.forgotPassword(email);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.email, color: Colors.white),
-                const SizedBox(width: 12),
-                const Expanded(
-                  child: Text(
-                    'Password reset email sent! Check your inbox.',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: Colors.blue,
-            duration: const Duration(seconds: 4),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            margin: const EdgeInsets.all(16),
-          ),
+        _showToastMessage(
+          message: 'Password reset email sent! Check your inbox.',
+          context: context,
+          color: Colors.blue,
+          icon: const Icon(Icons.email, color: Colors.white),
+          duration: const Duration(seconds: 4),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+        _showToastMessage(message: 'Error: ${e.toString()}', context: context);
       }
     }
   }
@@ -178,34 +167,19 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final success = await _loginController.loginWithGoogle();
       if (mounted && success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.check_circle, color: Colors.white),
-                const SizedBox(width: 12),
-                const Expanded(
-                  child: Text(
-                    'Google login successful! Welcome!',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 3),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            margin: const EdgeInsets.all(16),
-          ),
+        _showToastMessage(
+          message: 'Google login successful! Welcome!',
+          context: context,
+          color: Colors.green,
+          icon: const Icon(Icons.check_circle, color: Colors.white),
+          duration: const Duration(seconds: 3),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Google login failed: ${e.toString()}')),
+        _showToastMessage(
+          message: 'Google login failed: ${e.toString()}',
+          context: context,
         );
       }
     }
@@ -215,34 +189,19 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final success = await _loginController.loginWithApple();
       if (mounted && success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.check_circle, color: Colors.white),
-                const SizedBox(width: 12),
-                const Expanded(
-                  child: Text(
-                    'Apple login successful! Welcome!',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 3),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            margin: const EdgeInsets.all(16),
-          ),
+        _showToastMessage(
+          message: 'Apple login successful! Welcome!',
+          context: context,
+          color: Colors.green,
+          icon: const Icon(Icons.check_circle, color: Colors.white),
+          duration: const Duration(seconds: 3),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Apple login failed: ${e.toString()}')),
+        _showToastMessage(
+          message: 'Apple login failed: ${e.toString()}',
+          context: context,
         );
       }
     }
@@ -252,17 +211,17 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final success = await _loginController.loginWithFacebook();
       if (mounted && success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Facebook login successful!'),
-            backgroundColor: Colors.green,
-          ),
+        _showToastMessage(
+          message: 'Facebook login successful!',
+          context: context,
+          color: Colors.green,
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Facebook login failed: ${e.toString()}')),
+        _showToastMessage(
+          message: 'Facebook login failed: ${e.toString()}',
+          context: context,
         );
       }
     }

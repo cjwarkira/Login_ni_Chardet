@@ -8,70 +8,72 @@ class SignupFormCubit extends Cubit<SignupFormState> {
   void emailChanged(String email) {
     final isValid = AppValidators.isValidEmail(email);
     final error = _getEmailError(email);
-    
-    emit(state.copyWith(
-      email: email,
-      isEmailValid: isValid,
-      emailError: error,
-      isFormValid: _calculateFormValidity(
+
+    emit(
+      state.copyWith(
+        email: email,
         isEmailValid: isValid,
+        emailError: error,
+        isFormValid: _calculateFormValidity(isEmailValid: isValid),
       ),
-    ));
+    );
   }
 
   void passwordChanged(String password) {
     final isValid = AppValidators.isValidPassword(password);
     final error = _getPasswordError(password);
-    
+
     // Also validate confirm password when password changes
     final isConfirmPasswordValid = _isConfirmPasswordValid(
-      password, 
+      password,
       state.confirmPassword,
     );
     final confirmPasswordError = _getConfirmPasswordError(
-      password, 
+      password,
       state.confirmPassword,
     );
-    
-    emit(state.copyWith(
-      password: password,
-      isPasswordValid: isValid,
-      passwordError: error,
-      isConfirmPasswordValid: isConfirmPasswordValid,
-      confirmPasswordError: confirmPasswordError,
-      isFormValid: _calculateFormValidity(
+
+    emit(
+      state.copyWith(
+        password: password,
         isPasswordValid: isValid,
+        passwordError: error,
         isConfirmPasswordValid: isConfirmPasswordValid,
+        confirmPasswordError: confirmPasswordError,
+        isFormValid: _calculateFormValidity(
+          isPasswordValid: isValid,
+          isConfirmPasswordValid: isConfirmPasswordValid,
+        ),
       ),
-    ));
+    );
   }
 
   void confirmPasswordChanged(String confirmPassword) {
     final isValid = _isConfirmPasswordValid(state.password, confirmPassword);
     final error = _getConfirmPasswordError(state.password, confirmPassword);
-    
-    emit(state.copyWith(
-      confirmPassword: confirmPassword,
-      isConfirmPasswordValid: isValid,
-      confirmPasswordError: error,
-      isFormValid: _calculateFormValidity(
+
+    emit(
+      state.copyWith(
+        confirmPassword: confirmPassword,
         isConfirmPasswordValid: isValid,
+        confirmPasswordError: error,
+        isFormValid: _calculateFormValidity(isConfirmPasswordValid: isValid),
       ),
-    ));
+    );
   }
 
   void displayNameChanged(String displayName) {
     final isValid = displayName.trim().isNotEmpty;
     final error = _getDisplayNameError(displayName);
-    
-    emit(state.copyWith(
-      displayName: displayName,
-      isDisplayNameValid: isValid,
-      displayNameError: error,
-      isFormValid: _calculateFormValidity(
+
+    emit(
+      state.copyWith(
+        displayName: displayName,
         isDisplayNameValid: isValid,
+        displayNameError: error,
+        isFormValid: _calculateFormValidity(isDisplayNameValid: isValid),
       ),
-    ));
+    );
   }
 
   void togglePasswordVisibility() {
@@ -83,12 +85,12 @@ class SignupFormCubit extends Cubit<SignupFormState> {
   }
 
   void toggleAcceptTerms() {
-    emit(state.copyWith(
-      acceptTerms: !state.acceptTerms,
-      isFormValid: _calculateFormValidity(
+    emit(
+      state.copyWith(
         acceptTerms: !state.acceptTerms,
+        isFormValid: _calculateFormValidity(acceptTerms: !state.acceptTerms),
       ),
-    ));
+    );
   }
 
   void clearForm() {
@@ -103,10 +105,10 @@ class SignupFormCubit extends Cubit<SignupFormState> {
     bool? acceptTerms,
   }) {
     return (isEmailValid ?? state.isEmailValid) &&
-           (isPasswordValid ?? state.isPasswordValid) &&
-           (isConfirmPasswordValid ?? state.isConfirmPasswordValid) &&
-           (isDisplayNameValid ?? state.isDisplayNameValid) &&
-           (acceptTerms ?? state.acceptTerms);
+        (isPasswordValid ?? state.isPasswordValid) &&
+        (isConfirmPasswordValid ?? state.isConfirmPasswordValid) &&
+        (isDisplayNameValid ?? state.isDisplayNameValid) &&
+        (acceptTerms ?? state.acceptTerms);
   }
 
   bool _isConfirmPasswordValid(String password, String confirmPassword) {

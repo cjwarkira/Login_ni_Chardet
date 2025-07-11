@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:login_ni_chardet/screens/bloc_login_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/home_screen.dart';
 import '../utils/dev_auth_helper.dart';
@@ -59,13 +58,11 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
         // If user is authenticated, show home screen
         if (state is AuthAuthenticated) {
-          return HomeScreen(
-            userEmail: state.user.email ?? 'user@example.com',
-          );
+          return HomeScreen(userEmail: state.user.email ?? 'user@example.com');
         }
 
         // If user is not authenticated, show login screen
-        return const  LoginScreen();
+        return const LoginScreen();
       },
     );
   }

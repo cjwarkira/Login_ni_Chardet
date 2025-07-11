@@ -34,73 +34,85 @@ class _SignupScreenState extends State<SignupScreen> {
     super.dispose();
   }
 
+  // Reusable toast message method
+  void _showToastMessage({
+    required String message,
+    required BuildContext context,
+    Color? color,
+    Widget? icon,
+    Duration? duration,
+  }) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            if (icon != null) ...[icon, const SizedBox(width: 12)],
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: color ?? Colors.red,
+        duration: duration ?? const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(16),
+      ),
+    );
+  }
+
   void _handleSignup() async {
     // Ensure the form validation doesn't cause UI issues
     FocusScope.of(context).unfocus();
 
     // Check for empty fields and show user-friendly messages
     if (_nameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter your full name'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 2),
-        ),
+      _showToastMessage(
+        message: 'Please enter your full name',
+        context: context,
       );
       return;
     }
 
     if (_emailController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter your email address'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 2),
-        ),
+      _showToastMessage(
+        message: 'Please enter your email address',
+        context: context,
       );
       return;
     }
 
     if (_passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter your password'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 2),
-        ),
+      _showToastMessage(
+        message: 'Please enter your password',
+        context: context,
       );
       return;
     }
 
     if (_confirmPasswordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please confirm your password'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 2),
-        ),
+      _showToastMessage(
+        message: 'Please confirm your password',
+        context: context,
       );
       return;
     }
 
     if (_passwordController.text != _confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Passwords do not match'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 2),
-        ),
-      );
+      _showToastMessage(message: 'Passwords do not match', context: context);
       return;
     }
 
     if (!_acceptTerms) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please accept the terms and conditions'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 2),
-        ),
+      _showToastMessage(
+        message: 'Please accept the terms and conditions',
+        context: context,
       );
       return;
     }
@@ -122,31 +134,12 @@ class _SignupScreenState extends State<SignupScreen> {
           // Sign out the user immediately after registration
           await _loginController.logout();
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  const Icon(Icons.check_circle, color: Colors.white),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Text(
-                      'User Account Registered',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              backgroundColor: Colors.green,
-              duration: const Duration(seconds: 3),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              margin: const EdgeInsets.all(16),
-            ),
+          _showToastMessage(
+            message: 'User Account Registered',
+            context: context,
+            color: Colors.green,
+            icon: const Icon(Icons.check_circle, color: Colors.white),
+            duration: const Duration(seconds: 3),
           );
 
           // Navigate back to login screen after a brief delay
@@ -158,11 +151,9 @@ class _SignupScreenState extends State<SignupScreen> {
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Sign up failed: ${e.toString()}'),
-              backgroundColor: Colors.red,
-            ),
+          _showToastMessage(
+            message: 'Sign up failed: ${e.toString()}',
+            context: context,
           );
         }
       } finally {
@@ -186,28 +177,12 @@ class _SignupScreenState extends State<SignupScreen> {
         // Sign out the user immediately after registration
         await _loginController.logout();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.check_circle, color: Colors.white),
-                const SizedBox(width: 12),
-                const Expanded(
-                  child: Text(
-                    'Google Account Registered Successfully',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 3),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            margin: const EdgeInsets.all(16),
-          ),
+        _showToastMessage(
+          message: 'Google Account Registered Successfully',
+          context: context,
+          color: Colors.green,
+          icon: const Icon(Icons.check_circle, color: Colors.white),
+          duration: const Duration(seconds: 3),
         );
 
         // Navigate back to login screen after a brief delay
@@ -232,12 +207,10 @@ class _SignupScreenState extends State<SignupScreen> {
           errorMessage = 'Google sign up failed. Please try again.';
         }
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorMessage),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
-          ),
+        _showToastMessage(
+          message: errorMessage,
+          context: context,
+          duration: const Duration(seconds: 3),
         );
       }
     } finally {
@@ -260,28 +233,12 @@ class _SignupScreenState extends State<SignupScreen> {
         // Sign out the user immediately after registration
         await _loginController.logout();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.check_circle, color: Colors.white),
-                const SizedBox(width: 12),
-                const Expanded(
-                  child: Text(
-                    'User Account Registered',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 3),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            margin: const EdgeInsets.all(16),
-          ),
+        _showToastMessage(
+          message: 'User Account Registered',
+          context: context,
+          color: Colors.green,
+          icon: const Icon(Icons.check_circle, color: Colors.white),
+          duration: const Duration(seconds: 3),
         );
 
         // Navigate back to login screen after a brief delay
@@ -293,8 +250,9 @@ class _SignupScreenState extends State<SignupScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Apple sign up failed: ${e.toString()}')),
+        _showToastMessage(
+          message: 'Apple sign up failed: ${e.toString()}',
+          context: context,
         );
       }
     } finally {
@@ -314,17 +272,17 @@ class _SignupScreenState extends State<SignupScreen> {
 
       final success = await _loginController.loginWithFacebook();
       if (mounted && success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Facebook sign up successful!'),
-            backgroundColor: Colors.green,
-          ),
+        _showToastMessage(
+          message: 'Facebook sign up successful!',
+          context: context,
+          color: Colors.green,
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Facebook sign up failed: ${e.toString()}')),
+        _showToastMessage(
+          message: 'Facebook sign up failed: ${e.toString()}',
+          context: context,
         );
       }
     } finally {

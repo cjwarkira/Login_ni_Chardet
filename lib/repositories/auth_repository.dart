@@ -5,9 +5,16 @@ abstract class AuthRepository {
   Stream<User?> get authStateChanges;
   User? get currentUser;
   bool get isLoggedIn;
-  
-  Future<UserCredential?> signInWithEmailAndPassword(String email, String password);
-  Future<UserCredential?> createUserWithEmailAndPassword(String email, String password, String displayName);
+
+  Future<UserCredential?> signInWithEmailAndPassword(
+    String email,
+    String password,
+  );
+  Future<UserCredential?> createUserWithEmailAndPassword(
+    String email,
+    String password,
+    String displayName,
+  );
   Future<UserCredential?> signInWithGoogle();
   Future<UserCredential?> signInWithApple();
   Future<UserCredential?> signInWithFacebook();
@@ -19,7 +26,7 @@ class FirebaseAuthRepository implements AuthRepository {
   final FirebaseAuthService _authService;
 
   FirebaseAuthRepository({FirebaseAuthService? authService})
-      : _authService = authService ?? FirebaseAuthService();
+    : _authService = authService ?? FirebaseAuthService();
 
   @override
   Stream<User?> get authStateChanges => _authService.authStateChanges;
@@ -31,7 +38,10 @@ class FirebaseAuthRepository implements AuthRepository {
   bool get isLoggedIn => _authService.isLoggedIn;
 
   @override
-  Future<UserCredential?> signInWithEmailAndPassword(String email, String password) {
+  Future<UserCredential?> signInWithEmailAndPassword(
+    String email,
+    String password,
+  ) {
     return _authService.signInWithEmailAndPassword(email, password);
   }
 
@@ -41,7 +51,11 @@ class FirebaseAuthRepository implements AuthRepository {
     String password,
     String displayName,
   ) {
-    return _authService.createUserWithEmailAndPassword(email, password, displayName);
+    return _authService.createUserWithEmailAndPassword(
+      email,
+      password,
+      displayName,
+    );
   }
 
   @override
