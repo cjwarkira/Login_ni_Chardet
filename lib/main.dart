@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'firebase_options.dart';
 import 'screens/login_screen.dart';
+import 'screens/bloc_login_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/home_screen.dart';
 import 'widgets/auth_wrapper.dart';
 import 'utils/dev_auth_helper.dart';
+import 'bloc/bloc.dart';
+import 'repositories/auth_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,29 +35,48 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Real Estate Login',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF0ACF83),
-          brightness: Brightness.dark,
+    return MultiBlocProvider(
+      providers: [
+        // Auth Bloc - Global authentication state
+        BlocProvider<AuthBloc>(
+          create: (context) => AuthBloc(
+            authRepository: FirebaseAuthRepository(),
+          )..add(AuthCheckRequested()),
         ),
-        useMaterial3: true,
-      ),
-      debugShowCheckedModeBanner: false,
-      home: const AuthWrapper(),
-      routes: {
-        '/login': (context) => const LoginScreen(),
-        '/signup': (context) => const SignupScreen(),
-        '/home': (context) {
-          final args =
-              ModalRoute.of(context)?.settings.arguments
-                  as Map<String, dynamic>?;
-          return HomeScreen(
-            userEmail: args?['userEmail'] ?? 'user@example.com',
-          );
+        // Login Form Cubit - Can be provided globally or locally
+        BlocProvider<LoginFormCubit>(
+          create: (context) => LoginFormCubit(),
+        ),
+        // Signup Form Cubit - Can be provided globally or locally
+        BlocProvider<SignupFormCubit>(
+          create: (context) => SignupFormCubit(),
+        ),
+      ],
+      child: MaterialApp(
+        title: 'Real Estate Login',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF0ACF83),
+            brightness: Brightness.dark,
+          ),
+          useMaterial3: true,
+        ),
+        debugShowCheckedModeBanner: false,
+        home: const AuthWrapper(),
+        routes: {
+          '/login': (context) => const LoginScreen(),
+          // '/bloc-login': (context) => const BlocLoginScreen(), // New Bloc-based login
+          '/signup': (context) => const SignupScreen(),
+          '/home': (context) {
+            final args =
+                ModalRoute.of(context)?.settings.arguments
+                    as Map<String, dynamic>?;
+            return HomeScreen(
+              userEmail: args?['userEmail'] ?? 'user@example.com',
+            );
+          },
         },
-      },
+      ),
     );
   }
 }
